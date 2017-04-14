@@ -1,7 +1,7 @@
 // Control a LED with Bluetooth LE on an Arduino 101
 #include <CurieBLE.h>
 
-#define LED_PIN  13
+#define LED_PIN  6
 BLEPeripheral blePeripheral;
 
 // create service
@@ -65,10 +65,10 @@ void switchCharacteristicWritten(BLECentral& central, BLECharacteristic& charact
 
   if (bState) {
     Serial.println(F("LED on"));
-    analogWrite(LED_PIN, nDim);
+    digitalWrite(LED_PIN, nDim);
   } else {
     Serial.println(F("LED off"));
-    analogWrite(LED_PIN, 0);
+    digitalWrite(LED_PIN, 0);
   }
 }
 

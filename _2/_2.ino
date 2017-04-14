@@ -1,6 +1,7 @@
 //Second test
 //Bluetooth connection
 //Serial is used as control for indication
+//Doesn't work Abandon 
 
 #include <CurieIMU.h>
 #include <CurieBLE.h>
