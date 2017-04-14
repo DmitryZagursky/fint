@@ -16,8 +16,8 @@ BLEPeripheral blePeripheral;
 BLEService mainService = BLEService("19B10000-E8F2-537E-4F6C-D104768AAD4");
 // create switch and Output characteristic
 BLEIntCharacteristic axTooth = BLEIntCharacteristic("19B10001-E8F2-537E-4F6C-D104768AAD4", BLERead | BLENotify);
-BLEIntCharacteristic ayTooth = BLEIntCharacteristic("19B10001-E8F2-537E-4F6C-D104768AAD4", BLERead | BLENotify);
-BLEIntCharacteristic azTooth = BLEIntCharacteristic("19B10001-E8F2-537E-4F6C-D104768AAD4", BLERead | BLENotify);
+BLEIntCharacteristic ayTooth = BLEIntCharacteristic("19B10002-E8F2-537E-4F6C-D104768AAD4", BLERead | BLENotify);
+BLEIntCharacteristic azTooth = BLEIntCharacteristic("19B10003-E8F2-537E-4F6C-D104768AAD4", BLERead | BLENotify);
 void initBluetooth();
 
 // event handlers
