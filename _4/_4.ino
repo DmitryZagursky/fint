@@ -20,7 +20,7 @@ BLEService ledService = BLEService("FF10");
 // create switch and Output characteristic
 BLECharCharacteristic switchCharacteristic = BLECharCharacteristic("FF15", BLERead | BLEWrite);
 BLEDescriptor switchDescriptor = BLEDescriptor("2905", "Switch");
-BLELongCharacteristic OutputCharacteristic = BLELongCharacteristic("FF1D", BLERead | BLEWrite| BLENotify);
+BLEIntCharacteristic OutputCharacteristic = BLEIntCharacteristic("FF1D", BLERead | BLEWrite| BLENotify);
 BLEDescriptor OutputDescriptor = BLEDescriptor("290D", "Output");
 
 // event handlers
@@ -53,8 +53,8 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
 
   // set advertised local name and service UUID
-  blePeripheral.setLocalName("LED");
-  blePeripheral.setDeviceName("LED");
+  blePeripheral.setLocalName("FINT");
+  blePeripheral.setDeviceName("FINT_DEV");
   blePeripheral.setAdvertisedServiceUuid(ledService.uuid());
 
   // add service and characteristics
@@ -134,6 +134,6 @@ void updateData(){
     // increment previous time, so we keep proper pace
     microsPrevious = microsPrevious + STEP;
     OutputCharacteristic.setValue(aix);
-    Serial.print(aix);
+    Serial.print(OutputCharacteristic.value());
   }
 }
