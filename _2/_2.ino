@@ -32,6 +32,7 @@ void setup() {
   BLE.setEventHandler(BLEConnected, blePeripheralConnectHandler);
   BLE.setEventHandler(BLEDisconnected, blePeripheralDisconnectHandler);
   
+  digitalWrite(LED, HIGH);
 }
 
 // the loop function runs over and over again forever
