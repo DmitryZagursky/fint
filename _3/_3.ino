@@ -1,7 +1,7 @@
 // Control a LED with Bluetooth LE on an Arduino 101
 #include <CurieBLE.h>
 
-#define LED_PIN  6
+#define LED_PIN  13
 BLEPeripheral blePeripheral;
 
 // create service
