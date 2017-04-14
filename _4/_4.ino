@@ -34,7 +34,21 @@ unsigned long  microsPrevious, timeStart;
 
 void setup() {
   Serial.begin(9600);
-
+  // init sensor
+  CurieIMU.begin();
+  CurieIMU.setGyroRate(RATE);
+  CurieIMU.setAccelerometerRate(RATE);
+  CurieIMU.setGyroRange(GYRO_RANGE);
+  CurieIMU.setAccelerometerRange(ACCEL_RANGE);
+  
+  //init timer
+  timeStart=-1000000;
+  
+  //init serial for sync
+  Serial.begin(9600);
+  while (!Serial); 
+  Serial.print("READY");
+  Serial.flush();
   // set LED pin to output mode
   pinMode(LED_PIN, OUTPUT);
 
@@ -62,6 +76,8 @@ void setup() {
   blePeripheral.begin();
 
   Serial.println(F("Bluetooth LED"));
+  Serial.print("READY");
+  digitalWrite(LED_PIN,1);
 }
 
 void loop() {
