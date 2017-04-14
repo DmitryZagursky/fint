@@ -1,6 +1,7 @@
 // Control a LED with Bluetooth LE on an Arduino 101
 //try to write to ble service on signal
 #include <CurieBLE.h>
+#include <CurieIMU.h>
 
 #define LED_PIN  6
 
@@ -18,17 +19,18 @@ BLEService ledService = BLEService("FF10");
 
 // create switch and Output characteristic
 BLECharCharacteristic switchCharacteristic = BLECharCharacteristic("FF15", BLERead | BLEWrite);
-//BLEDescriptor switchDescriptor = BLEDescriptor("2905", "Switch");
-BLEUnsignedCharCharacteristic OutputCharacteristic = BLELongCharacteristic("FF1D", BLERead | BLEWrite| BLENotify);
-//BLEDescriptor OutputDescriptor = BLEDescriptor("290D", "Output");
+BLEDescriptor switchDescriptor = BLEDescriptor("2905", "Switch");
+BLELongCharacteristic OutputCharacteristic = BLELongCharacteristic("FF1D", BLERead | BLEWrite| BLENotify);
+BLEDescriptor OutputDescriptor = BLEDescriptor("290D", "Output");
 
 // event handlers
 void switchCharacteristicWritten(BLECentral& central, BLECharacteristic& characteristic);
 void OutputCharacteristicWritten(BLECentral& central, BLECharacteristic& characteristic);
 
 // initial values
-//unsigned char nDim = 128;
+long int nDim = 128;
 bool bState = false;
+unsigned long  microsPrevious, timeStart;
 
 void setup() {
   Serial.begin(9600);
@@ -66,7 +68,7 @@ void loop() {
   // poll peripheral
   blePeripheral.poll(); 
     // put your main code here, to run repeatedly:
-  updateData()
+  updateData();
 }
 
 void switchCharacteristicWritten(BLECentral& central, BLECharacteristic& characteristic) {
@@ -115,6 +117,6 @@ void updateData(){
     CurieIMU.readMotionSensor(aix, aiy, aiz, gix, giy, giz);
     // increment previous time, so we keep proper pace
     microsPrevious = microsPrevious + STEP;
-    OutputCharacteristic.setValue(aix)
+    OutputCharacteristic.setValue(aix);
   }
 }
