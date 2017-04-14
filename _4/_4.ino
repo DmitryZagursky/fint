@@ -118,5 +118,6 @@ void updateData(){
     // increment previous time, so we keep proper pace
     microsPrevious = microsPrevious + STEP;
     OutputCharacteristic.setValue(aix);
+    Serial.print(aix);
   }
 }
