@@ -58,8 +58,12 @@ void updateData(){
     // increment previous time, so we keep proper pace
     microsPrevious = microsPrevious + STEP;
     axTooth.setValue(aix);
+    axTooth.setValue(aiy);
+    axTooth.setValue(aiz);
     Serial.print(axTooth.value());
+    Serial.print("|");
     Serial.print(ayTooth.value());
+    Serial.print("|");
     Serial.print(azTooth.value());
     Serial.print("\n");
   }

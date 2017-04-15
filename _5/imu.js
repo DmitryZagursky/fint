@@ -1,3 +1,4 @@
+console.log('1')
 var noble = require('noble');
 
 // Search only for the Service UUID of the device (remove dashes)
@@ -12,15 +13,18 @@ var characteristicUuids = [
 
 // start scanning when bluetooth is powered on
 noble.on('stateChange', function(state) {
+  console.log('2')
   if (state === 'poweredOn') {
     noble.startScanning(serviceUuids);
   } else {
     noble.stopScanning();
+    console.log('stop')
   }
 });
 
 // Search for BLE peripherals
 noble.on('discover', function(peripheral) {
+  console.log('3')
   peripheral.connect(function(error) {
     console.log('connected to peripheral: ' + peripheral.uuid);
     // Only discover the service we specified above
