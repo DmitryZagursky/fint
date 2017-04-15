@@ -60,11 +60,11 @@ void updateData(){
     axTooth.setValue(aix);
     axTooth.setValue(aiy);
     axTooth.setValue(aiz);
-    Serial.print(axTooth.value());
+    Serial.print((int)axTooth.value());
     Serial.print("|");
-    Serial.print(ayTooth.value());
+    Serial.print((int)ayTooth.value());
     Serial.print("|");
-    Serial.print(azTooth.value());
+    Serial.print((int)azTooth.value());
     Serial.print("\n");
   }
 }
