@@ -66,7 +66,7 @@ void updateData(){
     Serial.print("|");
     Serial.print(aiz);
     Serial.print('-');
-    Serial.print(axTooth.value()-4);
+    Serial.print(axTooth.value());
     Serial.print("|");
     Serial.print(ayTooth.value());
     Serial.print("|");

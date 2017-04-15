@@ -2,13 +2,13 @@ console.log('1')
 var noble = require('noble');
 
 // Search only for the Service UUID of the device (remove dashes)
-var serviceUuids = ['19B10000E8F2537E4F6CD104768A1216'];
+var serviceUuids = ['19B10000E8F2537E4F6CD104768AAD4'];
 
 // Search only for the X, Y, Z Axis charateristics
 var characteristicUuids = [
-  '4227f3b1d6a24fb2a9163bee580a9c84',
-  '5b974f466f4843ee9a554fb009867603',
-  '09a64f1032b3497a93c2c914f46eba22'
+  '19B10001E8F2537E4F6CD104768AAD4',
+  '19B10002E8F2537E4F6CD104768AAD4',
+  '19B10003E8F2537E4F6CD104768AAD4'
 ];
 
 // start scanning when bluetooth is powered on
