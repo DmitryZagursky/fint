@@ -1,9 +1,12 @@
 //Just put data on air
+//DOESNT WORK RELIABLY ARDUINO HANGS UP
 #include <CurieBLE.h>
 #include <CurieIMU.h>
+#include <CurieTime.h>
+
 
 #define LED_PIN  13
-#define RATE 100
+#define RATE 10
 #define GYRO_RANGE 500 //rad/sec
 #define ACCEL_RANGE 16 //G
 #define STEP  1000000 / RATE //step between the meassurements
@@ -15,9 +18,9 @@ BLEPeripheral blePeripheral;
 // create service
 BLEService mainService = BLEService("19B10000-E8F2-537E-4F6C-D104768AAD4");
 // create switch and Output characteristic
-BLEIntCharacteristic axTooth = BLEIntCharacteristic("19B10001-E8F2-537E-4F6C-D104768AAD4", BLERead | BLENotify);
-BLEIntCharacteristic ayTooth = BLEIntCharacteristic("19B10002-E8F2-537E-4F6C-D104768AAD4", BLERead | BLENotify);
-BLEIntCharacteristic azTooth = BLEIntCharacteristic("19B10003-E8F2-537E-4F6C-D104768AAD4", BLERead | BLENotify);
+BLEIntCharacteristic axTooth = BLEIntCharacteristic("19B10001-E8F2-537E-4F6C-D104768AAD4", BLERead );
+BLEIntCharacteristic ayTooth = BLEIntCharacteristic("19B10002-E8F2-537E-4F6C-D104768AAD4", BLERead );
+BLEIntCharacteristic azTooth = BLEIntCharacteristic("19B10003-E8F2-537E-4F6C-D104768AAD4", BLERead );
 void initBluetooth();
 
 // event handlers
@@ -36,7 +39,7 @@ void setup() {
   
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN,1);
-  while (!Serial); 
+  //while (!Serial); 
   Serial.print(F("READY"));
   Serial.flush();
   
@@ -45,6 +48,7 @@ void setup() {
 
 void loop() {
   updateData();
+  blink();
 }
 
 void updateData(){
@@ -56,21 +60,24 @@ void updateData(){
     // read raw data from CurieIMU
     CurieIMU.readMotionSensor(aix, aiy, aiz, gix, giy, giz);
     // increment previous time, so we keep proper pace
+    Serial.print(microsNow - microsPrevious);
+    Serial.print(' ');
     microsPrevious = microsPrevious + STEP;
+    //microsPrevious = microsNow;
     axTooth.setValue(aix);
     ayTooth.setValue(aiy);
     azTooth.setValue(aiz);
     Serial.print(aix);
     Serial.print("|");
-    Serial.print(aiy);
-    Serial.print("|");
-    Serial.print(aiz);
-    Serial.print('-');
+    //Serial.print(aiy);
+    //Serial.print("|");
+    //Serial.print(aiz);
+    //Serial.print('-');
     Serial.print(axTooth.value());
-    Serial.print("|");
-    Serial.print(ayTooth.value());
-    Serial.print("|");
-    Serial.print(azTooth.value());
+    //Serial.print("|");
+    //Serial.print(ayTooth.value());
+    //Serial.print("|");
+    //Serial.print(azTooth.value());
     Serial.print("\n");
   }
 }
@@ -82,6 +89,7 @@ void initBluetooth(){
   blePeripheral.setAdvertisedServiceUuid(mainService.uuid());
 
   // add service and characteristics
+  blePeripheral.addAttribute(mainService);
   blePeripheral.addAttribute(axTooth);
   blePeripheral.addAttribute(ayTooth);
   blePeripheral.addAttribute(azTooth);
@@ -105,4 +113,15 @@ void initAccelerometers(){
   
   //init timer
   timeStart=-1000000;
+}
+
+void blink(){
+  int t=second();
+  int state;
+  if (t%2==0)
+    state=1;
+  else
+    state=0;
+  if (state!=digitalRead(LED_PIN))
+    digitalWrite(LED_PIN,state);
 }
