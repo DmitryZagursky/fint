@@ -1,0 +1,13 @@
+bash commands used to do stuff with arduino
+
+1:write to input, see the output, see it again after 2 seconds:
+
+gatttool -b 84:68:3E:00:34:83 --char-write-req --handle=0x000b --value=01 ; gatttool -b 84:68:3E:00:34:83 --char-read --handle=0x000f; sleep 2; gatttool -b 84:68:3E:00:34:83 --char-read --handle=0x000f
+
+
+2:continuous check of the values:
+
+while : ;  do gatttool -b 84:68:3E:00:34:83 --char-read --handle=0x000d; sleep 0.1 ;done
+
+
+

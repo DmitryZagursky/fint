@@ -4,13 +4,13 @@
 #include <CurieIMU.h>
 #include <CurieTime.h>
 
-#define LED_PIN  13
+#define LED_PIN  LED_BUILTIN
 #define GYRO_RANGE 500 //rad/sec
 #define ACCEL_RANGE 16 //Range of accelerometer in g. Raw g is integer from -32768 to +32768. 
 #define DURATION 2000000//number of microseconds per strike
 enum state {//Possible states of arduino board
   MEASURING,//Reads accelerometers, deduces acceleration value, at the end of measurement outputs mean
-  WAITING//Does nothing
+  WAITING//Does polls events, don't know why, events are detected even without it
 };
 
 void bleOutput(int);
@@ -135,7 +135,7 @@ void setState(state S){
 }
 void update(){
   switch(BoardState){
-    case WAITING: break;
+    case WAITING: blePeripheral.poll(); break;
     case MEASURING: measure(); break;
   };
 }
