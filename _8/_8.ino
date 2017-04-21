@@ -4,6 +4,8 @@
 #include <CurieBLE.h>
 #include <CurieIMU.h>
 #include <CurieTime.h>
+#include <MemoryFree.h>
+
 
 #define LED_PIN  LED_BUILTIN
 #define GYRO_RANGE 500 //rad/sec
@@ -201,6 +203,10 @@ void serialEvent(){
       }
       Serial.print("|-|\n");
     }
+  }else if(i==-4){
+     Serial.println("Free memory: " + String(freeMemory()));
+     Serial.println("Free stack: " + String(freeStack()));
+     Serial.println("Free heap: " + String(freeHeap()));
   }
 }
 //blinkers
