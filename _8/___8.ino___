@@ -1,0 +1,54 @@
+//Example 
+#include <CurieBLE.h>
+#include <CurieIMU.h>
+#include <CurieTime.h>
+
+typedef enum {//Possible states of arduino board
+  IDLE,//blink1, wait for command
+  LEARN,//blink2, measure accelerations
+  SEND,//Write value to BLE
+  SENT,//blink3, vait for next value to be requested
+  WIRE,//send data to serial.
+  BATCH,//cycle output value through all possibilities in a row, (disabled for now)
+  COMBAT,//The working regime
+  NUM_STATES,//just dummy value
+} state_t;
+typedef struct instance_data instance_data_t;
+typedef state_t state_func_t( instance_data_t *data );//function data -> new state
+typedef void transition_func_t( instance_data_t *data );//function data, change state
+
+void idle2learn( instance_data_t *data );
+void idle2send( instance_data_t *data );
+void idle2wire( instance_data_t *data );
+void idle2batch( instance_data_t *data );
+void idle2combat( instance_data_t *data );
+void learn2idle( instance_data_t *data );
+void send2sent( instance_data_t *data );
+void sent2idle( instance_data_t *data );
+void sent2send( instance_data_t *data );
+void wire2idle( instance_data_t *data );
+void batch2idle( instance_data_t *data );
+void combat2idle( instance_data_t *data );
+
+//a table of transition functions 
+transition_func_t * const transition_table[ NUM_STATES ][ NUM_STATES ] = {
+    { NULL,             idle2learn, 	idle2send, 	NULL, 		idle2wire, 	idle2batch, 	idle2combat },
+    { learn2idle,       NULL,		NULL,          	NULL,		NULL,		NULL,		NULL	},
+    { send2idle,	NULL,		NULL,		send2sent,	NULL,		NULL,		NULL	 },
+    { sent2idle,	NULL,		sent2send,	NULL,		NULL,		NULL,		NULL	},
+    { wire2idle,	NULL,		NULL,		NULL,		NULL,		NULL,		NULL	},
+    { batch2idle,	NULL,		NULL,		NULL,		NULL,		NULL,		NULL	},
+    { combat2idle,	NULL,		NULL,		NULL,		NULL,		NULL,		NULL	}
+};
+
+state_t run_state( state_t cur_state, instance_data_t *data ) {
+    state_t new_state = state_table[ cur_state ]( data );
+    transition_func_t *transition =
+               transition_table[ cur_state ][ new_state ];
+
+    if ( transition ) {
+        transition( data );
+    }
+
+    return new_state;
+};

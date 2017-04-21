@@ -8,6 +8,12 @@ parser:option{
     default="config.lua",
     args=1,
 }
+parser:option{
+    name="-o --output",
+    description="Output file if any",
+    args=1,
+}
+arg={}
 local opts=parser:parse()
 local config=dofile(opts.config)
 local tr=require "translate"
@@ -45,7 +51,7 @@ end
 shell(checkin)
 
 local wait=function()
-   os.execute("sleep 0.05") 
+   os.execute("sleep 0.01") 
 end
 local getHex=function(str)
     return str:match("%x%x %x%x %x%x %x%x")
@@ -54,11 +60,29 @@ end
 local results={}
 local i=0
 local fails=0
+
+
+local prev, cur
+local T=os.time()
 while true do
+    local ttt=os.clock()
+    local t=os.clock()
     shell(index_write(i))
-    wait()
-    if shell(checkin):match("03") then
-	table.insert(results,tr(getHex(shell(checkoutput))))
+    --wait()
+    --print("Per write",os.clock()-t)
+    local t=os.clock()
+    local s=shell(checkoutput)
+    --print("Per read", os.clock()-t)
+    t=os.clock()
+    cur= tr(getHex(s))
+    --print("Per conversion",os.clock()-t)
+    ------if shell(checkin):match("03") then
+    --print(prev,cur)
+    if prev~=cur then
+	--print("Per check",os.clock()-t)
+	local t=os.clock()
+	table.insert(results,cur)
+	prev=cur
 	i=i+1
 	fails=0
 	if i%20==0 then print(i) end
@@ -69,8 +93,17 @@ while true do
 	    break
 	end
     end
+    --print("Per loop ",os.clock()-ttt)
 end
-
-for i=1,#results do
-    print(results[i])
+--print("Total time ", os.difftime(os.time(),T))
+if opts.output then 
+    local f=io.open(opts.output,"w")
+    for i=1,#results do
+	f.write(results[i])
+    end
+    f:close()
+else 
+    for i=1,#results do
+	print(results[i])
+    end
 end

@@ -1,7 +1,7 @@
 local str = table.concat (arg)
 rev=function (str)
     local ind=tonumber(str)
-    assert(ind<256^3,"Numbers up to 256^3 are allowed")
+    assert(ind and ind<256^3,"Numbers up to 256^3 are allowed")
 
     local div=1
     local res={}
