@@ -1,4 +1,4 @@
-function process_data(fname)
+function res= process_data(fname)
     s=fileread(fname);
     window=30;
     %lines=strsplit(s,{"\\|\\d\\|","\\|\-\\|"},"delimitertype","regularexpression","collapsedelimiters",1);
@@ -13,14 +13,18 @@ function process_data(fname)
             for k=1:length(tt);
                 tt(k)=sum(abs(t(k+1:k+window+1)-t(k:k+window)));
             end
-            [~,ind2]=max(tt);
-            ms(j,:)=t(ind2:ind2+window);
-            ms(j,:)=ms(j,:)/max(ms(j,:));
+            %[~,ind2]=max(tt);
+            %ms(j,:)=t(ind2:ind2+window);
+            %ms(j,:)=ms(j,:)/max(ms(j,:));
+            ms(j,:)=t;
             
             j=j+1;
         end
     end
-    plot(ms')
-    %size(ms)
-    corr(ms')
+    %figure;
+    %plot(ms')
+    %title(fname);
+    c=corr(ms')';
+    %max(c(c<.99)')
+    
 end
