@@ -36,8 +36,10 @@ int shockTreshhold=3e3;//mg
 int shockDuration=25;//ms
 
 int measurementPos=0;
-int measurements[Nmeasurements][measurementN];
+//int measurements[Nmeasurements][measurementN];
+int **measurements;
 //int temp[Nmeasurements][measurementN];
+int* tmp;
 int currentMeasurementPos=-1;
 int *currentMeasurement;
 
@@ -59,11 +61,22 @@ void measurementsInit(){
   CurieIMU.setDetectionThreshold(CURIE_IMU_SHOCK, shockTreshhold); // 1g=1000mg
   CurieIMU.setDetectionDuration(CURIE_IMU_SHOCK, shockDuration);  // 50ms
   //for (int i=0; i<Nmeasurements; i++){
-    //measurements[i]=new int[measurementN];
+    ////measurements[i]=new int[measurementN];
+    //measurements[i]=(int*)malloc (sizeof(int)*measurementN);
     //for (int j=0; j<measurementN; j++){
       //currentMeasurement[j]=0;
     //}
   //}
+  measurements=(int**)malloc(sizeof(int*)*Nmeasurements);
+  for (int j = 0; j < Nmeasurements; j++)
+  {
+    tmp=(int*)malloc (sizeof(int)*measurementN);
+    for (int i = 0; i < measurementN; i++)
+    {
+      tmp[i]=0;
+    }
+    measurements[j]=tmp;
+  }
 }
 void startMeasuring(){
   measurementBeginning=millis();
