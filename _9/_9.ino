@@ -24,11 +24,11 @@ void setState(state S);
 void sOut(int);
 ////////////////////
 //MEASUREMENT TASK//
-const short measurementRate=2e2;//Times per second
-const short measurementStep=1e3/measurementRate;//Milliseconds
-const short measurementDuration=1e3;//Milliseconds
-const short measurementN=measurementDuration/measurementStep;//Size of a single measurement
-unsigned char Nmeasurements=10;//Amount of measurements stored on board
+const int measurementRate=2e2;//Times per second
+const int measurementStep=1e3/measurementRate;//Milliseconds
+const int measurementDuration=1e3;//Milliseconds
+const int measurementN=measurementDuration/measurementStep;//Size of a single measurement
+const int Nmeasurements=5;//Amount of measurements stored on board
 long int measurementPreviousTime=0;
 long int measurementBeginning=0;
 int shockTreshhold=3e3;//mg
@@ -67,32 +67,15 @@ void measurementsInit(){
     //}
   //}
   measurements=(int**)malloc(sizeof(int*)*Nmeasurements);
-  //for (int j = 0; j < Nmeasurements; j++){
-    while (!tmp){
-      tmp=(int*)malloc (sizeof(int)*measurementN*Nmeasurements);
-      if (tmp==NULL){
-        Nmeasurements=Nmeasurements-1;
-        //for (int i = 0; i < 20; i++){
-          //digitalWrite(LED_BUILTIN,0);
-          //delay(100);
-          //digitalWrite(LED_BUILTIN,1);
-          //delay(100);
-          //}
-      }
-    }
+  for (int j = 0; j < Nmeasurements; j++)
+  {
+    tmp=(int*)malloc (sizeof(int)*measurementN);
     for (int i = 0; i < measurementN; i++)
     {
       tmp[i]=0;
     }
-    
-
-    for (int i = 0; i < Nmeasurements; i++)
-    {
-      measurements[i]=&(tmp[i*measurementN]);
-    }
-    
-    //measurements[j]=tmp;
-  //}
+    measurements[j]=tmp;
+  }
 }
 void startMeasuring(){
   measurementBeginning=millis();

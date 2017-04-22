@@ -16,8 +16,8 @@ function res= process_data(fname)
             [~,ind2]=max(tt);
             ms(j,:)=t(ind2:ind2+window);
             ms(j,:)=ms(j,:)/max(ms(j,:));
-            ms(j,:)=t;
-            
+            %ms(j,:)=t;
+            %if j==2; break end
             j=j+1;
         end
     end
