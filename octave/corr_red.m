@@ -1,6 +1,6 @@
 function res=corr_red(a,b)
  %calculates reduced correlation between a and b or between columns of a:
- % res= ( a.*b )/ (sqrt(a.^2)*sqrt(b.^2);
+ % res= sum( a.*b )/ (sum(sqrt(a.^2)).*sum(sqrt(b.^2)));
  if exist("b","var")
     res= sum( a.*b )/ (sum(sqrt(a.^2)).*sum(sqrt(b.^2)));
  elseif size(a,2)>1
