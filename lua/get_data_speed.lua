@@ -13,6 +13,10 @@ parser:option{
     description="Output file if any",
     args=1,
 }
+parser:option{
+    name="-s --sizeof",
+    description="How many bits are in one value in gatttool string", 
+}
 arg={}
 local opts=parser:parse()
 local config=dofile(opts.config)
@@ -23,6 +27,7 @@ local dev=config.device
 local input=config.characteristics.input
 local index=config.characteristics.index
 local output=config.characteristics.output
+local sizeof=opts.sizeof or config.sizeof or nil
 
 local baseCommand='timeout --signal=SIGINT 3 gatttool -b '..dev
 local check=" --char-read --handle="
@@ -78,16 +83,20 @@ while true do
     t=os.clock()
     print("Per simple shell ", os.clock()-t)
     t=os.clock()
-    cur= tr(getHex(s))
+    local data= tr(getHex(s),sizeof)
     print("Per conversion",os.clock()-t)
     ------if shell(checkin):match("03") then
     --print(prev,cur)
+    cur=data[#data]+data[1]
     if prev~=cur then
 	--print("Per check",os.clock()-t)
 	local t=os.clock()
-	table.insert(results,cur)
+	print(data)
+	for _,v in ipairs(data) do
+	    table.insert(results,v)
+	end
 	prev=cur
-	i=i+1
+	i=i+#data
 	fails=0
 	if i%20==0 then print(i) end
     else

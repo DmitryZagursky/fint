@@ -6,5 +6,6 @@ local config={
 	index="0x000d",
 	output="0x00f",
     },
+    sizeof=1,
 }
 return config
