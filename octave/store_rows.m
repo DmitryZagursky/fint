@@ -12,7 +12,8 @@ function store_rows(fname,res)
     assert(succ==1,"Something gone wrong, folder not created");
     for i=1:size(res,1);
         file=fopen([fname '/' num2str(i)],'w');
-        fdisp(file, res(i,:)');
+        %fdisp(file, res(i,:)');
+        fprintf(file,"%d\n", res(i,:));
         fclose(file);
     end
 end

@@ -6,6 +6,7 @@ function res= process_data(fname,cut=0)
     s=fileread(fname);
     
     %lines=strsplit(s,{"\\|\\d\\|","\\|\-\\|"},"delimitertype","regularexpression","collapsedelimiters",1);
+    
     [~,~,~,~,nm]=regexp(s,{"\\|([\\d\\s]+)\\|\-\\|"});
     nm=nm{1};
     j=1;
