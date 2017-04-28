@@ -1,8 +1,4 @@
 local fname=arg[1] if not fname then print('no file') return end
---local N=tonumber(arg[2]) if not N then print("No cluster count given") return end
-
---require "union"
---graphviz=require "graphviz"
 
 function file_lines(fname)
 	assert(fname)
