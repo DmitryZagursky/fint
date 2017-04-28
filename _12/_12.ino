@@ -4,18 +4,15 @@
 //Measurements are in the buffer
 //Reduced memory usage
 //-3 on serial gets all data from the buffer
-//Read gyro as well TODO
 #include <CurieBLE.h>
 #include <CurieIMU.h>
 #include <CurieTime.h>
 #include <MemoryFree.h>
-#include <limits>
 
 
 #define LED_PIN  LED_BUILTIN
 #define GYRO_RANGE 500 //rad/sec
 #define ACCEL_RANGE 16 //Range of accelerometer in g. Raw g is integer from -32768 to +32768. 
-#define INT uint8_t
 enum state {//Possible states of arduino board
   MEASURING,//Reads accelerometers, deduces acceleration value, at the end of measurement outputs mean
   WAITING,//Does polls events, don't know why, events are detected even without it
@@ -31,23 +28,23 @@ void sOut(int);
 ////////////////////
 //MEASUREMENT TASK//
 const short BEEPER=12;
-const short measurementRate=4e2;//Times per second
+const short measurementRate=2e2;//Times per second
 const short measurementStep=1e3/measurementRate;//Milliseconds
 const short measurementDuration=1e3;//Milliseconds
 const short measurementN=measurementDuration/measurementStep;//Size of a single measurement
-const short Nmeasurements=10;//Amount of measurements stored on board
+unsigned char Nmeasurements=10;//Amount of measurements stored on board
 long int measurementPreviousTime=0;
 long int measurementBeginning=0;
 int shockTreshhold=3e3;//mg
 int shockDuration=25;//ms
 
 int measurementPos=0;
-INT measurements[Nmeasurements][measurementN];
-//INT **measurements;
+//int measurements[Nmeasurements][measurementN];
+uint16_t **measurements;
 //int temp[Nmeasurements][measurementN];
-//INT *tmp;
+uint16_t* tmp;
 uint16_t currentMeasurementPos=-1;
-INT *currentMeasurement;
+uint16_t *currentMeasurement;
 
 static void accelerationEvent(){
   if (CurieIMU.getInterruptStatus(CURIE_IMU_SHOCK)) {
@@ -73,31 +70,25 @@ void measurementsInit(){
       //currentMeasurement[j]=0;
     //}
   //}
-  for (int i=0; i<Nmeasurements; i++){
-    for (int j = 0; j < measurementN; j++)
-    {
-      measurements[i][j]=0;
-    }
-  }
   
-  //measurements=(uint16_t**)malloc(sizeof(uint16_t*)*Nmeasurements);
-  ////for (int j = 0; j < Nmeasurements; j++){
-    //while (!tmp){
-      //tmp=(INT*)malloc (sizeof(INT)*measurementN*Nmeasurements);
-      //if (tmp==NULL){
-        //Nmeasurements=Nmeasurements-1;
-      //}
-    //}
-    //for (int i = 0; i < measurementN; i++)
-    //{
-      //tmp[i]=0;
-    //}
+  measurements=(uint16_t**)malloc(sizeof(uint16_t*)*Nmeasurements);
+  //for (int j = 0; j < Nmeasurements; j++){
+    while (!tmp){
+      tmp=(uint16_t*)malloc (sizeof(uint16_t)*measurementN*Nmeasurements);
+      if (tmp==NULL){
+        Nmeasurements=Nmeasurements-1;
+      }
+    }
+    for (int i = 0; i < measurementN; i++)
+    {
+      tmp[i]=0;
+    }
     
 
-    //for (int i = 0; i < Nmeasurements; i++)
-    //{
-      //measurements[i]=&(tmp[i*measurementN]);
-    //}
+    for (int i = 0; i < Nmeasurements; i++)
+    {
+      measurements[i]=&(tmp[i*measurementN]);
+    }
     
     //measurements[j]=tmp;
   //}
@@ -119,19 +110,12 @@ void startMeasuring(){
 void measure(){
   long int currentTime=millis();
   if (currentTime-measurementPreviousTime >= measurementStep){
-    uint32_t a=0;
+    int a=0;
     int ax,ay,az;
-    INT m;
     CurieIMU.readAccelerometer(ax,ay,az);
     a=ax*ax+ay*ay+az*az;
-    #undef min
-    #undef max
-    m=map(a,
-      std::numeric_limits<uint32_t>::min(), std::numeric_limits<uint32_t>::max(),
-      std::numeric_limits<INT>::min(),  std::numeric_limits<INT>::max()
-      );
-    currentMeasurement[measurementPos]=m;
     measurementPreviousTime=currentTime;
+    currentMeasurement[measurementPos]=a;
     measurementPos++;
   }
   digitalWrite(LED_PIN,1);
@@ -158,7 +142,8 @@ BLEService mainService = BLEService("19B10000-E8F2-537E-4F6C-D104768AAD4");
 BLECharCharacteristic inSignal = BLECharCharacteristic("19B10001-E8F2-537E-4F6C-D104768AAD4", BLERead|BLEWrite );
 BLEIntCharacteristic outSignal = BLEIntCharacteristic("19B10002-E8F2-537E-4F6C-D104768AAD4", BLERead );
 BLEIntCharacteristic indexSignal = BLEIntCharacteristic("19B10003-E8F2-537E-4F6C-D104768AAD4",BLERead|BLEWrite);
-BLEUnsignedLongCharacteristic packedoutSignal = BLEUnsignedLongCharacteristic("19B10004-E8F2-537E-4F6C-D104768AAD4",BLERead);
+BLEIntCharacteristic shockTreshholdSignal = BLEIntCharacteristic("19B10004-E8F2-537E-4F6C-D104768AAD4",BLERead|BLEWrite);
+BLEIntCharacteristic durationTreshholdSignal = BLEIntCharacteristic("19B10005-E8F2-537E-4F6C-D104768AAD4",BLERead|BLEWrite);
 
 
 void inSignalCallback(){
@@ -180,19 +165,9 @@ void indexSignalCallback(){
   //Serial.write("\n");
   //Serial.print(1);
   if (0<=ind && ind<measurementN){
-    unsigned long res=0;
-    short n=sizeof(long)/sizeof(INT);
-    for (int i = ind; (i <measurementN && i < n); i++){
-      res= res | currentMeasurement[i];
-      res =res << sizeof(INT);
-      Serial.print(currentMeasurement[i]);
-      Serial.print(" ");
-    }
-    Serial.print("\n");
-    outSignal.setValue(sizeof(INT));
-    packedoutSignal.setValue(res);
+    outSignal.setValue(currentMeasurement[ind]);
     setState(SENT);
-    //sOut(currentMeasurement[ind]);
+    sOut(currentMeasurement[ind]);
     //bleInput(3);
   }else{
     setState(WAITING);
@@ -201,7 +176,14 @@ void indexSignalCallback(){
 void indexSignalWritten(BLECentral& central, BLECharacteristic& characteristic){
   indexSignalCallback();
 }
-
+void shockTreshholdSignalCallback(BLECentral& central, BLECharacteristic& characteristic){
+  shockTreshhold =shockTreshholdSignal.value();
+  CurieIMU.setDetectionThreshold(CURIE_IMU_SHOCK, shockTreshhold); // 1g=1000mg
+}
+void durationTreshholdSignalCallback(BLECentral& central, BLECharacteristic& characteristic){
+  shockDuration =durationTreshholdSignal.value();
+  CurieIMU.setDetectionDuration(CURIE_IMU_SHOCK, shockDuration);  // 50ms
+}
 void startSending(){
   bleInput(2);
 }
@@ -226,7 +208,8 @@ void bleInit(){
   blePeripheral.addAttribute(inSignal);
   blePeripheral.addAttribute(indexSignal);
   blePeripheral.addAttribute(outSignal);
-  blePeripheral.addAttribute(packedoutSignal);
+  blePeripheral.addAttribute(shockTreshholdSignal);
+  blePeripheral.addAttribute(durationTreshholdSignal);
   
   // setting initial values so tey can be read correctly after start up
   inSignal.setValue(0);
@@ -235,6 +218,8 @@ void bleInit(){
   
   inSignal.setEventHandler(BLEWritten, inSignalWritten);
   indexSignal.setEventHandler(BLEWritten, indexSignalWritten);
+  shockTreshholdSignal.setEventHandler(BLEWritten,shockTreshholdSignalCallback);
+  durationTreshholdSignal.setEventHandler(BLEWritten,durationTreshholdSignalCallback);
   // begin initialization
   blePeripheral.begin();
 }
