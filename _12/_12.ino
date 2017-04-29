@@ -31,7 +31,7 @@ void sOut(int);
 ////////////////////
 //MEASUREMENT TASK//
 const short BEEPER=12;
-const short measurementRate=4e2;//Times per second
+const short measurementRate=2e2;//Times per second
 const short measurementStep=1e3/measurementRate;//Milliseconds
 const short measurementDuration=1e3;//Milliseconds
 const short measurementN=measurementDuration/measurementStep;//Size of a single measurement
@@ -116,6 +116,11 @@ void startMeasuring(){
   }
   digitalWrite(BEEPER,1);
 }
+long map(int64_t x, int64_t in_min, int64_t in_max, int64_t out_min, int64_t out_max)
+{
+  return (x - in_min)  / (in_max - in_min) * (out_max - out_min) + out_min;
+}
+
 void measure(){
   long int currentTime=millis();
   if (currentTime-measurementPreviousTime >= measurementStep){
@@ -127,9 +132,16 @@ void measure(){
     #undef min
     #undef max
     m=map(a,
-      std::numeric_limits<uint32_t>::min(), std::numeric_limits<uint32_t>::max(),
-      std::numeric_limits<INT>::min(),  std::numeric_limits<INT>::max()
+      //std::numeric_limits<uint32_t>::min(), std::numeric_limits<uint32_t>::max(),
+      0, std::numeric_limits<uint32_t>::max(),
+      //std::numeric_limits<INT>::min(),  std::numeric_limits<INT>::max()
+      0,  std::numeric_limits<INT>::max()
       );
+    //Serial.print("mapping ");
+    Serial.print(a);
+    Serial.print("  ");
+    Serial.print(m);
+    Serial.print("\n");
     currentMeasurement[measurementPos]=m;
     measurementPreviousTime=currentTime;
     measurementPos++;
@@ -182,14 +194,19 @@ void indexSignalCallback(){
   if (0<=ind && ind<measurementN){
     unsigned long res=0;
     short n=sizeof(long)/sizeof(INT);
-    for (int i = ind; (i <measurementN && i < n); i++){
+    for (int i = ind; (i <measurementN && i < ind+n); i++){
       res= res | currentMeasurement[i];
       res =res << sizeof(INT);
       Serial.print(currentMeasurement[i]);
       Serial.print(" ");
     }
+    Serial.print("|");
+    Serial.print(res);
     Serial.print("\n");
-    outSignal.setValue(sizeof(INT));
+    //outSignal.setValue(sizeof(INT));
+    int o=0;
+    o+=currentMeasurement[ind];
+    outSignal.setValue(o);
     packedoutSignal.setValue(res);
     setState(SENT);
     //sOut(currentMeasurement[ind]);

@@ -4,8 +4,8 @@ local config={
     characteristics={--handles of characteristics
 	input="0x000b",
 	index="0x000d",
-	output="0x0011",
+	output="0x00f",
     },
-    sizeof=1,
+    sizeof=4,
 }
 return config

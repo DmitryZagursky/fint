@@ -17,6 +17,10 @@ parser:option{
     name="-s --sizeof",
     description="How many bits are in one value in gatttool string", 
 }
+parser:flag{
+    name="-l --log",
+    description="Print time usage"
+}
 arg={}
 local opts=parser:parse()
 local config=dofile(opts.config)
@@ -27,7 +31,8 @@ local dev=config.device
 local input=config.characteristics.input
 local index=config.characteristics.index
 local output=config.characteristics.output
-local sizeof=opts.sizeof or config.sizeof or nil
+local sizeof= tonumber(opts.sizeof) or tonumber(config.sizeof) or nil
+local log = opts.log and print or (function() end)
 
 local baseCommand='timeout --signal=SIGINT 3 gatttool -b '..dev
 local check=" --char-read --handle="
@@ -74,24 +79,24 @@ while true do
     local t=os.clock()
     shell(index_write(i))
     --wait()
-    print("Per write",os.clock()-t)
+    log("Per write",os.clock()-t)
     local t=os.clock()
     local s=shell(checkoutput)
-    print("Per read", os.clock()-t)
+    log("Per read", os.clock()-t)
     local t=os.clock()
     local werq=shell("echo fuuuuuu")
     t=os.clock()
-    print("Per simple shell ", os.clock()-t)
+    log("Per simple shell ", os.clock()-t)
     t=os.clock()
     local data= tr(getHex(s),sizeof)
-    print("Per conversion",os.clock()-t)
+    log("Per conversion",os.clock()-t)
     ------if shell(checkin):match("03") then
     --print(prev,cur)
     cur=data[#data]+data[1]
     if prev~=cur then
 	--print("Per check",os.clock()-t)
 	local t=os.clock()
-	print(data)
+	log(data)
 	for _,v in ipairs(data) do
 	    table.insert(results,v)
 	end
@@ -101,12 +106,12 @@ while true do
 	if i%20==0 then print(i) end
     else
 	fails=fails+1
-	print('retry')
+	log('retry')
 	if fails>3 then
 	    break
 	end
     end
-    print("Per loop ",os.clock()-ttt)
+    log("Per loop ",os.clock()-ttt)
 end
 --print("Total time ", os.difftime(os.time(),T))
 if opts.output then 
