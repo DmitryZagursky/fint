@@ -15,7 +15,7 @@
 #define LED_PIN  LED_BUILTIN
 #define GYRO_RANGE 500 //rad/sec
 #define ACCEL_RANGE 16 //Range of accelerometer in g. Raw g is integer from -32768 to +32768. 
-#define INT uint8_t
+#define INT uint16_t
 enum state {//Possible states of arduino board
   MEASURING,//Reads accelerometers, deduces acceleration value, at the end of measurement outputs mean
   WAITING,//Does polls events, don't know why, events are detected even without it
@@ -31,11 +31,11 @@ void sOut(int);
 ////////////////////
 //MEASUREMENT TASK//
 const short BEEPER=12;
-const short measurementRate=2e2;//Times per second
+const short measurementRate=8e2;//Times per second
 const short measurementStep=1e3/measurementRate;//Milliseconds
-const short measurementDuration=1e3;//Milliseconds
+const short measurementDuration=5e2;//Milliseconds
 const short measurementN=measurementDuration/measurementStep;//Size of a single measurement
-const short Nmeasurements=10;//Amount of measurements stored on board
+const short Nmeasurements=5;//Amount of measurements stored on board
 long int measurementPreviousTime=0;
 long int measurementBeginning=0;
 int shockTreshhold=3e3;//mg
@@ -116,9 +116,9 @@ void startMeasuring(){
   }
   digitalWrite(BEEPER,1);
 }
-long map(int64_t x, int64_t in_min, int64_t in_max, int64_t out_min, int64_t out_max)
+long scale(int64_t x, int64_t in_min, int64_t in_max, int64_t out_min, int64_t out_max)
 {
-  return (x - in_min)  / (in_max - in_min) * (out_max - out_min) + out_min;
+  return (x - in_min)  / ((in_max - in_min) / (out_max - out_min)) + out_min;
 }
 
 void measure(){
@@ -131,7 +131,7 @@ void measure(){
     a=ax*ax+ay*ay+az*az;
     #undef min
     #undef max
-    m=map(a,
+    m=scale(a,
       //std::numeric_limits<uint32_t>::min(), std::numeric_limits<uint32_t>::max(),
       0, std::numeric_limits<uint32_t>::max(),
       //std::numeric_limits<INT>::min(),  std::numeric_limits<INT>::max()
