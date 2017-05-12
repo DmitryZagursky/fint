@@ -5,7 +5,7 @@ local str = table.concat (arg)
 conv=function (str, sizeof)
 --conv=function (str, sizeof)
 --`str` - string to convert
---`sizeof` - number of bytes per number, in none, then whole string is a single number
+--`sizeof` - number of bytes per number, if none, then whole string is a single number
     local sss={}
     local ans={}
     for c in str:gmatch("(%x%x)") do
